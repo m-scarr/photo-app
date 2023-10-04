@@ -53,7 +53,7 @@ module.exports = {
                 while (
                   i < sortedPosts.length &&
                   sortedPosts[i].relevancy >
-                    modifiedPosts[modifiedPosts.length - 1].relevancy
+                  modifiedPosts[modifiedPosts.length - 1].relevancy
                 ) {
                   i++;
                 }
@@ -74,25 +74,30 @@ module.exports = {
           });
       },
       readTimelineByUser: (db, req, res) => {
-        db.Post.findAll({
-          where: { targetId: req.query.targetId },
-          order: [["id", "DESC"]],
-          include: [
-            {
-              model: db.User,
-              as: "poster",
-              include: [{ model: db.Photo, as: "profilePhoto" }],
-            },
-            { model: db.Photo, as: "photo" },
-          ],
-        })
-          .then((result) => {
-            res.json(result);
+        db.User.findOne({ where: { id: req.query.targetId }, include: [{ model: db.Photo, as: "profilePhoto" }] }).then((user) => {
+          db.Post.findAll({
+            where: { targetId: req.query.targetId },
+            order: [["id", "DESC"]],
+            include: [
+              {
+                model: db.User,
+                as: "poster",
+                include: [{ model: db.Photo, as: "profilePhoto" }],
+              },
+              { model: db.Photo, as: "photo" },
+            ],
           })
-          .catch((err) => {
-            console.log(err);
-            res.json(false);
-          });
+            .then((result) => {
+              res.json({ ...user.dataValues, timeline: [...result] });
+            })
+            .catch((err) => {
+              console.log(err);
+              res.json(false);
+            });
+        }).catch((err) => {
+          console.log(err);
+          res.json(false);
+        });
       },
       readFeed: (db, req, res) => {
         db.Friendship.findAll({

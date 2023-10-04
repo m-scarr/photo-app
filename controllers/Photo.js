@@ -16,7 +16,6 @@ module.exports = {
         words.forEach((word) => {
           queryArray[queryArray.length] = {
             word: { [db.Sequelize.Op.like]: "%" + word + "%" },
-            albumId: null,
           };
         });
         db.Keyword.findAll({
@@ -91,21 +90,24 @@ module.exports = {
             res.json(false);
           });
       },
+      readByAlbum: (db, req, res) => {
+        db.Album.findAll({
+          where: { id: req.query.albumId },
+          include: [{ model: db.Photo, as: "photos", include: [{ model: db.Keyword, as: "keywords" }] }]
+        }).then((result) => {
+          res.json(result);
+        })
+          .catch((err) => {
+            console.log(err);
+            res.json(false);
+          });
+      }
     },
     post: {
-      create: (db, req, res) => {
+      createMultiple: (db, req, res) => {
         var imgs = [];
         req.files.forEach((file) => {
-          imgs[imgs.length] =
-            typeof req.query.albumId === "undefined"
-              ? {
-                  photoRef: file.filename,
-                  userId: req.user.id,
-                }
-              : {
-                  photoRef: file.filename,
-                  albumId: req.query.albumId,
-                };
+          imgs[imgs.length] = { photoRef: file.filename, albumId: req.query.albumId, };
         });
         db.Photo.bulkCreate(imgs)
           .then((result) => {
@@ -116,22 +118,13 @@ module.exports = {
             res.json(false);
           });
       },
-    },
-    put: {
       update: (db, req, res) => {
         requestData = limitAttributes(req.body, ["description", "albumId"]);
-        if (typeof requestData.albumId !== "undefined") {
-          if (requestData.albumId == null) {
-            requestData.userId = req.user.id;
-          } else {
-            requestData.userId = null;
-          }
-        }
         db.Photo.update(requestData, {
           where: { id: req.body.id },
         })
           .then((result) => {
-            res.json(true);
+            res.json(result > 0);
           })
           .catch((err) => {
             console.log(err);

@@ -16,7 +16,7 @@ module.exports = {
     get: {},
     post: {
       create: (db, req, res) => {
-        requestData = limitAttributes(req.body, ["word", "photoId", "albumId"]);
+        requestData = limitAttributes(req.body, ["word", "photoId"]);
         requestData.word = requestData.word.split(" ")[0];
         db.Keyword.create(requestData)
           .then((result) => {
@@ -27,23 +27,14 @@ module.exports = {
           });
       },
       createMultiple: (db, req, res) => {
-        requestData = limitAttributes(req.body, ["words", "photoId", "albumId"]);
+        requestData = limitAttributes(req.body, ["words", "photoId"]);
         var wordData = [];
-        if (typeof requestData.photoId !== "undefined") {
-          requestData.words.forEach((word) => {
-            wordData[wordData.length] = {
-              word: word,
-              photoId: requestData.photoId,
-            };
-          });
-        } else {
-          requestData.words.forEach((word) => {
-            wordData[wordData.length] = {
-              word: word,
-              albumId: requestData.albumId,
-            };
-          });
-        }
+        requestData.words.forEach((word) => {
+          wordData[wordData.length] = {
+            word: word,
+            photoId: requestData.photoId,
+          };
+        });
         db.Keyword.bulkCreate(wordData)
           .then((result) => {
             res.json(result);

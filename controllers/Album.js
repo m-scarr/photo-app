@@ -26,39 +26,11 @@ module.exports = {
                   as: "keywords",
                 },
               ],
-            },
-            {
-              model: db.Keyword,
-              as: "keywords",
-            },
+            }
           ],
         })
           .then((albums) => {
-            db.Photo.findAll({
-              where: { userId: req.query.userId },
-              include: [
-                {
-                  model: db.Keyword,
-                  as: "keywords",
-                },
-              ],
-            })
-              .then((assortedPhotos) => {
-                var assortedPhotoAlbum = {
-                  id: -1,
-                  keywords: [],
-                  name: "Assorted Photos",
-                  userId: req.query.userId,
-                  description: "Photos without an album",
-                  photos: [...assortedPhotos],
-                };
-                albums.splice(0, 0, assortedPhotoAlbum);
-                res.json(albums);
-              })
-              .catch((err) => {
-                console.log(err);
-                res.json(false);
-              });
+            res.json(albums)
           })
           .catch((err) => {
             console.log(err);

@@ -1,28 +1,10 @@
 module.exports = {
-  settings: {
-    color: {
-      r: 0,
-      g: 205,
-      b: 150,
-      getString: (r, g, b) => {
-        return (
-          "rgb(" +
-          (r + (typeof r === "undefined" ? this.state.settings.color.r : 0)) +
-          ", " +
-          (g + (typeof g === "undefined" ? this.state.settings.color.g : 0)) +
-          ", " +
-          (b + (typeof b === "undefined" ? this.state.settings.color.b : 0)) +
-          ")"
-        );
-      },
-    },
-    fontSize: 24,
-  },
   user: null,
   orientation:
     window.innerWidth > window.innerHeight ? "landscape" : "portrait",
   userView: -1,
   currentView: "logIn",
+  history: [],
   views: {
     register: {
       logInName: "",
@@ -37,30 +19,27 @@ module.exports = {
       password: "",
     },
     feed: [],
-    uploadEditor: {
+    upload: {
       photos: [],
-      currentPhotoIndex: 0,
-      keywords: [],
-      description: "",
-      albumId: -1,
+      photoIndex: 0,
     },
-    timeline: {
+    timeline: { //userid
       displayName: "",
       email: "",
       phone: "",
       job: "",
       employer: "",
       aboutMe: "",
-      profilePhoto: "",
+      profilePhoto: {},
       posts: [],
     },
-    inbox: [],
+    albums: [], //userId
+    photos: { albumId: null, description: "", photos: [] }, //this will be a single album with all it's photos
+    search: { query: "", sort: "Relevance", type: "People", results: [] },
+
     friendRequests: [],
     friends: [],
-    albums: [],
-    photos: [],
-    search: [],
+    inbox: [],
     conversation: { recipient: {}, messages: [] },
-    albumViewer: null,
   },
 };
